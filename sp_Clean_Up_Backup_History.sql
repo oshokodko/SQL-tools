@@ -52,78 +52,38 @@ SET DEADLOCK_PRIORITY LOW;
 			WHERE backup_set_id IN (SELECT backup_set_id FROM #backup_set_id)
 			ORDER BY restore_history_id;
 
-		PRINT 'Deleting records from backupfile'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) msdb.dbo.backupfile 
-				WHERE backup_set_id IN (SELECT backup_set_id FROM #backup_set_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.backupfile',
+								@keysTableName ='#backup_set_id',
+								@columnName = 'backup_set_id'
 
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.backupfilegroup',
+								@keysTableName ='#backup_set_id',
+								@columnName = 'backup_set_id'
 
-		PRINT 'Deleting records from backupfilegroup'		
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) msdb.dbo.backupfilegroup
-				WHERE backup_set_id IN (SELECT backup_set_id FROM #backup_set_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.restorefile',
+								@keysTableName ='#restore_history_id',
+								@columnName = 'restore_history_id'
 
-		PRINT 'Deleting records from restorefile'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) msdb.dbo.restorefile
-				WHERE restore_history_id IN (SELECT restore_history_id FROM #restore_history_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.restorefilegroup',
+								@keysTableName ='#restore_history_id',
+								@columnName = 'restore_history_id'
+	
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.restorehistory',
+								@keysTableName ='#restore_history_id',
+								@columnName = 'restore_history_id'
+		
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.backupset',
+								@keysTableName ='#backup_set_id',
+								@columnName = 'backup_set_id'
+		
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.backupmediafamily',
+								@keysTableName ='#media_set_id',
+								@columnName = 'media_set_id'
+		
+		EXEC sp_DeleteInBatches @deleteTableName = 'msdb.dbo.backupmediaset',
+								@keysTableName ='#media_set_id',
+								@columnName = 'media_set_id'
 
-		PRINT 'Deleting records from restorefilegroup'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) msdb.dbo.restorefilegroup
-				WHERE restore_history_id IN (SELECT restore_history_id FROM #restore_history_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
-		
-		PRINT 'Deleting records from restorehistory'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) FROM msdb.dbo.restorehistory
-				WHERE restore_history_id IN (SELECT restore_history_id FROM #restore_history_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
-		
-		PRINT 'Deleting records from backupset'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) FROM msdb.dbo.backupset
-				WHERE backup_set_id IN (SELECT backup_set_id FROM #backup_set_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
-		
-		PRINT 'Deleting records from backupmediafamily'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) FROM msdb.dbo.backupmediafamily
-				WHERE media_set_id IN (SELECT media_set_id FROM #media_set_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
-		
-		PRINT 'Deleting records from backupmediaset'
-		SET @rowCount =1
-		WHILE @rowCount > 0
-		BEGIN
-			SET @sql = 'DELETE TOP (1000) FROM msdb.dbo.backupmediaset
-				WHERE media_set_id IN (SELECT media_set_id FROM #media_set_id);'
-			EXEC @rowCount = sp_executeSqlWithRetries @dynamicSQL = @sql
-		END;
 	END TRY
 	BEGIN CATCH
 		THROW;
