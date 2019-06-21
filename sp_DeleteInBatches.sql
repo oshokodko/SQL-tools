@@ -14,6 +14,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_DeleteInBatches
  @debug bit = 0
 AS
 BEGIN
+SET NOCOUNT ON;
 	BEGIN TRY
 		DECLARE @rowCount INT = 0
 		DECLARE @totalDeletedCount INT = 0
